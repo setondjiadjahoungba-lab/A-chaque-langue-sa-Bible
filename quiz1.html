@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz — Histoire de la Traduction Biblique</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --or: #c9a84c;
+      --or-clair: #e8c97a;
+      --noir: #0d0a06;
+      --texte: #f5ead8;
+      --texte-doux: #9a8a76;
+      --texte-muted: #7a6a56;
+      --vert-ok: #2d6a4f;
+      --rouge-non: #7a1c2e;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: var(--noir);
+      background-image:
+        radial-gradient(ellipse 60% 50% at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 70%);
+      color: var(--texte);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      padding: 30px 16px 60px;
+    }
+
+    /* Lien retour */
+    .retour {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--texte-muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+      transition: color 0.3s;
+    }
+    .retour:hover { color: var(--or); }
+
+    .conteneur {
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    /* ── EN-TÊTE ── */
+    .entete {
+      text-align: center;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+    }
+
+    .entete-croix { font-size: 1.6rem; color: var(--or); margin-bottom: 6px; }
+
+    .entete h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 400;
+      font-size: 1.3rem;
+      color: var(--or-clair);
+      margin-bottom: 4px;
+    }
+
+    .entete-sous {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      color: var(--texte-muted);
+      text-transform: uppercase;
+    }
+
+    /* ── PROGRESSION ── */
+    .progression { margin-bottom: 20px; }
+
+    .barre-fond {
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      height: 4px;
+      margin-bottom: 6px;
+      overflow: hidden;
+    }
+
+    .barre-remplie {
+      height: 100%;
+      background: linear-gradient(90deg, #7a1c2e, var(--or));
+      border-radius: 2px;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    .progression-infos {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      color: var(--texte-muted);
+    }
+
+    .progression-infos .score-val { color: var(--or); }
+
+    /* ── CARTE QUESTION ── */
+    .carte {
+      background: rgba(245,234,216,0.04);
+      border: 1px solid rgba(201,168,76,0.22);
+      border-radius: 6px;
+      padding: 28px 24px;
+      animation: fadeIn 0.35s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .badge-cat {
+      display: inline-block;
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 2px;
+      margin-bottom: 16px;
+    }
+
+    .question-texte {
+      font-size: 1.1rem;
+      font-style: italic;
+      line-height: 1.7;
+      color: var(--texte);
+      margin-bottom: 24px;
+    }
+
+    /* ── OPTIONS ── */
+    .options-grille {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+
+    .option-btn {
+      background: rgba(245,234,216,0.04);
+      border: 1px solid rgba(201,168,76,0.18);
+      border-radius: 3px;
+      color: var(--texte);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 0.95rem;
+      padding: 12px 14px;
+      text-align: left;
+      cursor: pointer;
+      line-height: 1.4;
+      transition: all 0.2s;
+    }
+
+    .option-btn:not(:disabled):hover {
+      background: rgba(201,168,76,0.08);
+      border-color: rgba(201,168,76,0.4);
+    }
+
+    .option-btn .lettre {
+      font-size: 0.65rem;
+      color: var(--or);
+      opacity: 0.7;
+      margin-right: 6px;
+      font-family: 'Cinzel', serif;
+    }
+
+    .option-btn.correct {
+      background: rgba(45,106,79,0.25);
+      border-color: var(--vert-ok);
+      color: #7fd8a3;
+    }
+
+    .option-btn.incorrect {
+      background: rgba(122,28,46,0.25);
+      border-color: var(--rouge-non);
+      color: #e07070;
+    }
+
+    .option-btn:disabled { cursor: default; }
+
+    /* ── EXPLICATION ── */
+    .explication {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .explication .verdict {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .explication.ok {
+      border-left: 3px solid var(--vert-ok);
+      background: rgba(45,106,79,0.12);
+      color: #a0e8c0;
+    }
+
+    .explication.ko {
+      border-left: 3px solid var(--rouge-non);
+      background: rgba(122,28,46,0.12);
+      color: #f0a0a0;
+    }
+
+    /* ── BOUTON SUIVANT ── */
+    .btn-suivant {
+      margin-top: 18px;
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--or);
+      color: var(--or);
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 14px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.3s;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .btn-suivant:hover {
+      background: rgba(201,168,76,0.1);
+    }
+
+    /* ══════════════════
+       PAGE RÉSULTATS
+    ══════════════════ */
+    .resultats { display: none; animation: fadeIn 0.5s ease; }
+
+    .resultats-entete {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .trophee { font-size: 4rem; margin-bottom: 12px; display: block; }
+
+    .resultats-entete h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--or-clair);
+      margin-bottom: 8px;
+    }
+
+    .score-final {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: var(--or);
+      line-height: 1;
+      margin: 16px 0 8px;
+    }
+
+    .score-final span {
+      font-size: 1.2rem;
+      color: var(--texte-doux);
+      font-weight: 400;
+    }
+
+    .verdict-texte {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--texte-doux);
+      max-width: 460px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* Barre circulaire simulée */
+    .score-visuel {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .score-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(201,168,76,0.15);
+      border: 1px solid rgba(201,168,76,0.25);
+    }
+
+    .score-dot.actif { background: var(--or); border-color: var(--or); }
+
+    /* Récapitulatif */
+    .recap-titre {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--or);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+    }
+
+    .recap-liste { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
+
+    .recap-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      background: rgba(245,234,216,0.03);
+      border: 1px solid rgba(201,168,76,0.08);
+      border-radius: 3px;
+    }
+
+    .recap-icone { font-size: 0.9rem; flex-shrink: 0; margin-top: 2px; }
+
+    .recap-q {
+      font-size: 0.85rem;
+      font-style: italic;
+      color: var(--texte-doux);
+      margin-bottom: 3px;
+      line-height: 1.4;
+    }
+
+    .recap-r {
+      font-size: 0.85rem;
+      color: var(--texte);
+    }
+
+    .recap-r .bonne { color: var(--or); }
+
+    /* Boutons résultats */
+    .btns-resultats {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn-recommencer {
+      flex: 1;
+      background: var(--or);
+      color: var(--noir);
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 15px 20px;
+      cursor: pointer;
+      border: none;
+      border-radius: 3px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-recommencer:hover { background: var(--or-clair); }
+
+    .btn-retour-site {
+      flex: 1;
+      background: transparent;
+      color: var(--or);
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 14px 20px;
+      cursor: pointer;
+      border: 1px solid rgba(201,168,76,0.4);
+      border-radius: 3px;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .btn-retour-site:hover { border-color: var(--or); background: rgba(201,168,76,0.06); }
+
+    /* Couleurs catégories */
+    .cat-traductions-anciennes { color: #c9a84c; border-color: rgba(201,168,76,0.35); }
+    .cat-reforme               { color: #e07070; border-color: rgba(224,112,112,0.35); }
+    .cat-langues               { color: #70b8e0; border-color: rgba(112,184,224,0.35); }
+    .cat-organisations         { color: #90d090; border-color: rgba(144,208,144,0.35); }
+    .cat-afrique               { color: #d4956a; border-color: rgba(212,149,106,0.35); }
+    .cat-benin                 { color: #a070d0; border-color: rgba(160,112,208,0.35); }
+    .cat-vision                { color: #e0c070; border-color: rgba(224,192,112,0.35); }
+    .cat-techno                { color: #70d0c0; border-color: rgba(112,208,192,0.35); }
+
+    @media (max-width: 500px) {
+      .options-grille { grid-template-columns: 1fr; }
+      body { padding: 20px 12px 40px; }
+      .carte { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="conteneur">
+
+    <!-- Lien retour -->
+    <a href="index.html" class="retour">← Retour</a>
+
+    <!-- ── EN-TÊTE ── -->
+    <div class="entete">
+      <div class="entete-croix">✝</div>
+      <h1>À chaque langue, sa Bible</h1>
+      <p class="entete-sous">Histoire de la traduction biblique</p>
+    </div>
+
+    <!-- ── QUIZ ── -->
+    <div id="zoneQuiz">
+
+      <!-- Barre de progression -->
+      <div class="progression">
+        <div class="barre-fond">
+          <div class="barre-remplie" id="barreRemplie"></div>
+        </div>
+        <div class="progression-infos">
+          <span>Score : <span class="score-val" id="scoreAffiche">0</span></span>
+          <span id="numQuestion">Question 1 / 20</span>
+        </div>
+      </div>
+
+      <!-- Carte question -->
+      <div class="carte" id="carte">
+        <span class="badge-cat" id="badgeCat"></span>
+        <p class="question-texte" id="questionTexte"></p>
+        <div class="options-grille" id="optionsGrille"></div>
+        <!-- Explication et bouton injectés ici dynamiquement -->
+      </div>
+
+    </div>
+
+    <!-- ── RÉSULTATS ── -->
+    <div class="resultats" id="zoneResultats">
+
+      <div class="resultats-entete">
+        <span class="trophee" id="trophee">🏆</span>
+        <h2>Quiz terminé !</h2>
+        <div class="score-final" id="scoreFinal">— <span>/ 20</span></div>
+        <div class="score-visuel" id="scoreVisuel"></div>
+        <p class="verdict-texte" id="verdictTexte"></p>
+      </div>
+
+      <p class="recap-titre">Récapitulatif de vos réponses</p>
+      <ul class="recap-liste" id="recapListe"></ul>
+
+      <div class="btns-resultats">
+        <button class="btn-recommencer" onclick="recommencer()">↺ Recommencer le quiz</button>
+        <a href="index.html" class="btn-retour-site">← Retour au site</a>
+      </div>
+
+    </div>
+
+  </div><!-- fin conteneur -->
+
+  <script>
+  // ════════════════════════════════
+  //  DONNÉES
+  // ════════════════════════════════
+  const QUESTIONS = [
+    { cat:"Traductions anciennes", q:"Quelle est la première grande traduction de l'Ancien Testament en grec, réalisée à Alexandrie vers le IIIe siècle av. J.-C. ?", opts:["La Vulgate","La Peshitta","La Septante (LXX)","La Targum"], ans:2, expl:"La Septante (LXX) est la traduction de l'Ancien Testament hébreu en grec, réalisée à Alexandrie. Elle a joué un rôle fondamental dans la diffusion des Écritures dans le monde méditerranéen." },
+    { cat:"Traductions anciennes", q:"Qui a réalisé la Vulgate, la traduction latine de la Bible qui a dominé l'Occident pendant plus d'un millénaire ?", opts:["Origène","Jérôme de Stridon","Ambroise de Milan","Augustin d'Hippone"], ans:1, expl:"Saint Jérôme (347–420) a traduit la Bible en latin, donnant naissance à la Vulgate, restée la Bible officielle de l'Église catholique pendant des siècles." },
+    { cat:"Traductions anciennes", q:"La Peshitta est la Bible traditionnelle de quelle communauté chrétienne ?", opts:["Les chrétiens éthiopiens","Les chrétiens coptes","Les chrétiens syriaques","Les chrétiens arméniens"], ans:2, expl:"La Peshitta est la version de la Bible utilisée par les Églises syriaques depuis l'Antiquité, l'une des plus anciennes traductions chrétiennes encore en usage." },
+    { cat:"Réforme & Pionniers", q:"William Tyndale fut le premier à traduire le NT en anglais depuis le grec. Quelle fut sa tragique destinée ?", opts:["Il fut exilé à Rome","Il mourut de maladie en Angleterre","Il fut étranglé puis brûlé sur le bûcher en 1536","Il fut emprisonné à vie"], ans:2, expl:"Tyndale fut condamné pour hérésie, étranglé et brûlé en 1536. Avant de mourir, il aurait prié : 'Seigneur, ouvre les yeux du roi d'Angleterre.'" },
+    { cat:"Réforme & Pionniers", q:"La traduction de Luther en allemand (1522–1534) a eu un impact majeur au-delà du domaine religieux. Lequel ?", opts:["Elle a unifié la langue allemande écrite","Elle a créé l'alphabet latin pour l'Allemagne","Elle a remplacé le grec par le latin en théologie","Elle a conduit à la création de l'imprimerie"], ans:0, expl:"La traduction de Luther a joué un rôle déterminant dans la standardisation de la langue allemande écrite, devenant un monument culturel autant que spirituel." },
+    { cat:"Réforme & Pionniers", q:"La Bible du Roi Jacques (KJV), publiée en 1611, est reconnue comme un chef-d'œuvre littéraire. Combien de traducteurs ont collaboré ?", opts:["6 traducteurs","24 traducteurs","47 traducteurs","100 traducteurs"], ans:2, expl:"Environ 47 érudits en hébreu, araméen et grec ont travaillé en équipes sur la King James Version, publiée sous le règne du roi Jacques Ier." },
+    { cat:"Langues & Diversité", q:"Combien de langues vivantes existe-t-il environ dans le monde ?", opts:["Environ 2 000","Environ 4 000","Environ 7 000","Environ 12 000"], ans:2, expl:"On recense environ 7 000 langues vivantes dans le monde. Cette diversité est au cœur de la vision missionnaire : chaque peuple mérite la Parole de Dieu dans sa propre langue." },
+    { cat:"Langues & Diversité", q:"Quel continent concentre la plus grande diversité linguistique au monde ?", opts:["L'Asie","L'Amérique latine","L'Afrique","L'Océanie"], ans:2, expl:"L'Afrique est le continent le plus linguistiquement divers, avec plus de 2 000 langues documentées — un appel urgent à la traduction biblique pour les Églises africaines." },
+    { cat:"Langues & Diversité", q:"Dans 'À chaque langue, sa Bible', pourquoi traduire dans les langues maternelles plutôt que dans les grandes langues coloniales ?", opts:["Pour préserver les langues menacées uniquement","Les grandes langues sont trop difficiles","La langue maternelle atteint le cœur et transforme l'âme","Pour des raisons politiques de décolonisation"], ans:2, expl:"La conviction centrale est que la Parole de Dieu doit toucher le cœur dans la langue du cœur. Dans la langue maternelle, elle devient vraiment transformatrice." },
+    { cat:"Organisations missionnaires", q:"Qui a fondé Wycliffe Bible Translators et en quelle année ?", opts:["William Cameron Townsend, 1942","Hudson Taylor, 1865","Jim Elliot, 1956","Cameron Townsend, 1917"], ans:0, expl:"William Cameron Townsend a fondé Wycliffe Bible Translators en 1942 après avoir constaté que des peuples entiers n'avaient pas la Bible dans leur langue." },
+    { cat:"Organisations missionnaires", q:"Quelle est la principale contribution de SIL International ?", opts:["Financer les Églises locales pour l'évangélisation","Développer des systèmes d'écriture et former des traducteurs","Imprimer et distribuer des Bibles gratuitement","Former des pasteurs dans les universités occidentales"], ans:1, expl:"SIL apporte une expertise linguistique : documentation des langues, développement d'alphabets, formation de traducteurs. Sans SIL, des centaines de langues n'auraient pas de système d'écriture." },
+    { cat:"Bible & Afrique", q:"Quel danger guette les Églises africaines qui se contentent des Bibles dans les langues coloniales ?", opts:["Un danger politique de néocolonialisme","Une dépendance spirituelle qui empêche un enracinement authentique","Un appauvrissement économique des traducteurs","Une perte de membres au profit des religions traditionnelles"], ans:1, expl:"Le livre argue qu'une Église qui prie dans une langue qui n'est pas celle de son cœur reste tributaire de l'Occident. L'enracinement authentique passe par les langues maternelles." },
+    { cat:"Bible & Afrique", q:"Samuel Ajayi Crowther est une figure historique majeure. Qui était-il ?", opts:["Un missionnaire britannique en Afrique","Un ancien esclave yoruba, premier évêque africain de l'Église anglicane, traducteur en yoruba","Un linguiste français spécialiste des langues africaines","Le fondateur de la Société Biblique du Nigeria"], ans:1, expl:"Crowther (v.1809–1891), ancien esclave libéré, est devenu le premier évêque africain anglican et a traduit le NT en yoruba — symbole puissant de l'appropriation africaine de la Bible." },
+    { cat:"Bible & Afrique", q:"Quelle langue africaine est l'une de celles sur lesquelles travaille le traducteur biblique béninois auteur de ce livre ?", opts:["Le fon","L'ayizo","Le yoruba","Le mina"], ans:1, expl:"L'auteur a travaillé sur la traduction en langue ayizo, parlée dans le sud du Bénin, dans le cadre de son engagement avec Wycliffe Bénin et SIL International." },
+    { cat:"Contexte béninois", q:"Combien de langues environ sont recensées au Bénin ?", opts:["Environ 10 langues","Environ 25 langues","Plus de 50 langues","Plus de 100 langues"], ans:2, expl:"Le Bénin compte plus de 50 langues et dialectes. Cette diversité représente un appel urgent : beaucoup de communautés n'ont pas encore la Bible dans leur propre langue." },
+    { cat:"Contexte béninois", q:"Quelle langue est la plus parlée comme langue véhiculaire dans le sud du Bénin ?", opts:["L'ayizo","Le goun","Le fon","Le yoruba"], ans:2, expl:"Le fon est la langue la plus répandue dans le sud du Bénin, notamment dans les départements de l'Atlantique, du Zou et du Mono." },
+    { cat:"Vision & Théologie", q:"Pourquoi la Pentecôte (Actes 2) est-elle un modèle fondamental pour la traduction biblique ?", opts:["Les apôtres ont écrit en plusieurs langues","Dieu lui-même a choisi de parler à chaque peuple dans sa propre langue maternelle","La Pentecôte a créé une langue universelle","Pierre a traduit son discours en araméen"], ans:1, expl:"À la Pentecôte, chaque personne entendait la Parole dans sa propre langue — le modèle divin : Dieu parle à chaque peuple dans sa langue du cœur." },
+    { cat:"Vision & Théologie", q:"Quel(s) passage(s) biblique(s) est/sont cité(s) comme fondement de l'urgence de traduire dans toutes les langues ?", opts:["Genèse 11 (Babel) uniquement","Matthieu 28:19 (Grande Commission) uniquement","Apocalypse 7:9 (la multitude) uniquement","Ces trois passages ensemble"], ans:3, expl:"Babel explique la diversité des langues, la Grande Commission appelle à atteindre tous les peuples, et Apocalypse 7:9 donne la vision finale de toutes les langues autour du trône." },
+    { cat:"Vision & Théologie", q:"La vision centrale du livre appelle les Églises africaines à quel changement de paradigme ?", opts:["Abandonner les langues coloniales dans le culte","Passer d'une dépendance aux missionnaires à une appropriation africaine de la traduction","Créer une seule Bible panafricaine en swahili","Confier la traduction à l'intelligence artificielle"], ans:1, expl:"Le message central est un appel à l'autonomisation : les Églises africaines doivent elles-mêmes prendre ownership de la traduction biblique dans leurs langues maternelles." },
+    { cat:"Technologie & IA", q:"L'invention de Gutenberg au XVe siècle a révolutionné la diffusion de la Bible. De quoi s'agit-il ?", opts:["Le télégraphe","L'imprimerie à caractères mobiles","Le papyrus industriel","La lithographie"], ans:1, expl:"Gutenberg a inventé l'imprimerie à caractères mobiles vers 1440. La première Bible imprimée parut vers 1455, rendant les Écritures accessibles à d'innombrables personnes." },
+    { cat:"Technologie & IA", q:"Quel risque principal le livre identifie-t-il face aux traductions par intelligence artificielle ?", opts:["Le coût trop élevé des technologies d'IA","La perte du sens spirituel et culturel profond qu'une IA ne peut saisir","Le fait que l'IA traduit trop rapidement","L'impossibilité technique pour l'IA de traiter les langues africaines"], ans:1, expl:"La traduction biblique est un acte spirituel et culturel. Une IA peut produire des mots mais ne peut saisir les nuances culturelles et la dimension pneumatique de la Parole de Dieu." },
+  ];
+
+  const CAT_CLASSE = {
+    "Traductions anciennes":    "cat-traductions-anciennes",
+    "Réforme & Pionniers":      "cat-reforme",
+    "Langues & Diversité":      "cat-langues",
+    "Organisations missionnaires": "cat-organisations",
+    "Bible & Afrique":          "cat-afrique",
+    "Contexte béninois":        "cat-benin",
+    "Vision & Théologie":       "cat-vision",
+    "Technologie & IA":         "cat-techno",
+  };
+
+  const LETTRES = ["A","B","C","D"];
+
+  const VERDICTS = [
+    { min:0,  max:0.49, emoji:"📖", texte:"Continuez à explorer ! Chaque lecture du livre vous apportera de nouvelles connaissances sur cette belle vision." },
+    { min:0.5, max:0.69, emoji:"🌱", texte:"Bon début ! Vous êtes sur la bonne voie pour devenir un ambassadeur de la traduction biblique en Afrique." },
+    { min:0.7, max:0.84, emoji:"⭐", texte:"Très bien ! Vous maîtrisez bien l'histoire de la traduction biblique et la vision du livre." },
+    { min:0.85, max:0.94, emoji:"🏅", texte:"Excellent ! Vous êtes un véritable connaisseur de la vision 'À chaque langue, sa Bible'." },
+    { min:0.95, max:1,   emoji:"🏆", texte:"Parfait ! Vous êtes un véritable ambassadeur de la vision. Chaque peuple mérite la Parole de Dieu dans sa langue maternelle !" },
+  ];
+
+  // ════════════════════════════════
+  //  ÉTAT
+  // ════════════════════════════════
+  let questions = [];
+  let cur = 0, score = 0, reponses = [], selectionne = null;
+
+  function melanger(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+  function init() {
+    questions = melanger(QUESTIONS);
+    cur = 0; score = 0; reponses = []; selectionne = null;
+    document.getElementById('zoneQuiz').style.display = 'block';
+    document.getElementById('zoneResultats').style.display = 'none';
+    afficherQuestion();
+  }
+
+  // ════════════════════════════════
+  //  AFFICHAGE QUESTION
+  // ════════════════════════════════
+  function afficherQuestion() {
+    const q = questions[cur];
+    const total = questions.length;
+
+    // Barre + compteurs
+    document.getElementById('barreRemplie').style.width = `${(cur / total) * 100}%`;
+    document.getElementById('scoreAffiche').textContent = score;
+    document.getElementById('numQuestion').textContent = `Question ${cur + 1} / ${total}`;
+
+    // Badge catégorie
+    const badge = document.getElementById('badgeCat');
+    badge.textContent = q.cat;
+    badge.className = 'badge-cat ' + (CAT_CLASSE[q.cat] || '');
+
+    // Texte question
+    document.getElementById('questionTexte').textContent = q.q;
+
+    // Options
+    const grille = document.getElementById('optionsGrille');
+    grille.innerHTML = '';
+    q.opts.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="lettre">${LETTRES[i]}.</span>${opt}`;
+      btn.onclick = () => choisir(i);
+      grille.appendChild(btn);
+    });
+
+    // Supprimer ancienne explication/bouton
+    const ancien = document.getElementById('zoneExplication');
+    if (ancien) ancien.remove();
+    const ancienBtn = document.getElementById('btnSuivant');
+    if (ancienBtn) ancienBtn.remove();
+
+    selectionne = null;
+
+    // Animation carte
+    const carte = document.getElementById('carte');
+    carte.style.animation = 'none';
+    void carte.offsetWidth;
+    carte.style.animation = 'fadeIn 0.35s ease';
+  }
+
+  // ════════════════════════════════
+  //  CHOIX D'UNE RÉPONSE
+  // ════════════════════════════════
+  function choisir(i) {
+    if (selectionne !== null) return;
+    selectionne = i;
+
+    const q = questions[cur];
+    const ok = (i === q.ans);
+    if (ok) score++;
+    reponses.push({ ok, q: q.q, bonneReponse: q.opts[q.ans] });
+
+    // Colorer les boutons
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach((btn, idx) => {
+      btn.disabled = true;
+      if (idx === q.ans) btn.classList.add('correct');
+      else if (idx === i && !ok) btn.classList.add('incorrect');
+    });
+
+    // Mettre à jour score affiché
+    document.getElementById('scoreAffiche').textContent = score;
+
+    // Explication
+    const expl = document.createElement('div');
+    expl.id = 'zoneExplication';
+    expl.className = 'explication ' + (ok ? 'ok' : 'ko');
+    expl.innerHTML = `<span class="verdict">${ok ? '✔ Correct !' : '✘ Incorrect'}</span>${q.expl}`;
+    document.getElementById('carte').appendChild(expl);
+
+    // Bouton suivant
+    const btn = document.createElement('button');
+    btn.id = 'btnSuivant';
+    btn.className = 'btn-suivant';
+    btn.textContent = (cur + 1 >= questions.length) ? 'Voir les résultats →' : 'Question suivante →';
+    btn.onclick = suivant;
+    document.getElementById('carte').appendChild(btn);
+  }
+
+  // ════════════════════════════════
+  //  QUESTION SUIVANTE
+  // ════════════════════════════════
+  function suivant() {
+    if (cur + 1 >= questions.length) {
+      afficherResultats();
+    } else {
+      cur++;
+      afficherQuestion();
+    }
+  }
+
+  // ════════════════════════════════
+  //  RÉSULTATS
+  // ════════════════════════════════
+  function afficherResultats() {
+    document.getElementById('zoneQuiz').style.display = 'none';
+    const zone = document.getElementById('zoneResultats');
+    zone.style.display = 'block';
+
+    const total = questions.length;
+    const pct = score / total;
+
+    // Score
+    document.getElementById('scoreFinal').innerHTML = `${score} <span>/ ${total}</span>`;
+
+    // Points visuels
+    const visuel = document.getElementById('scoreVisuel');
+    visuel.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'score-dot' + (i < score ? ' actif' : '');
+      visuel.appendChild(dot);
+    }
+
+    // Verdict
+    const v = VERDICTS.find(v => pct >= v.min && pct <= v.max) || VERDICTS[VERDICTS.length - 1];
+    document.getElementById('trophee').textContent = v.emoji;
+    document.getElementById('verdictTexte').textContent = v.texte;
+
+    // Récapitulatif
+    const liste = document.getElementById('recapListe');
+    liste.innerHTML = '';
+    reponses.forEach(r => {
+      const li = document.createElement('li');
+      li.className = 'recap-item';
+      li.innerHTML = `
+        <span class="recap-icone">${r.ok ? '✅' : '❌'}</span>
+        <div>
+          <div class="recap-q">${r.q}</div>
+          <div class="recap-r">Bonne réponse : <span class="bonne">${r.bonneReponse}</span></div>
+        </div>`;
+      liste.appendChild(li);
+    });
+  }
+
+  // ════════════════════════════════
+  //  RECOMMENCER
+  // ════════════════════════════════
+  function recommencer() { init(); }
+
+  // ── Démarrage ──
+  init()
+  </script>
+</body>
+</html>
+<a href="index.html" class="btn-retour-site">← Accueil</a>

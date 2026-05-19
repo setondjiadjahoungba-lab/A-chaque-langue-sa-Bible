@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz – Histoire de la traduction de la Bible</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0a06;color:#f5ead8;font-family:'EB Garamond',Georgia,serif;font-size:17px;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(201,168,76,.07) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(122,28,46,.09) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+.wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:32px 20px 60px}
+
+/* HEADER */
+header{text-align:center;margin-bottom:36px;padding-bottom:24px;border-bottom:1px solid rgba(201,168,76,.25)}
+.cross{font-size:26px;color:#c9a84c;display:block;margin-bottom:8px}
+header h1{font-family:'Cinzel',serif;font-size:clamp(17px,3.5vw,24px);color:#e8c97a;font-weight:700;line-height:1.3;margin-bottom:6px;text-shadow:0 0 30px rgba(201,168,76,.35)}
+header p{font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;color:#7a6a56;text-transform:uppercase}
+
+/* LEVEL BADGE */
+.level-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:2px;margin-bottom:14px;border:1px solid}
+.lv1{color:#4ade80;border-color:#4ade8066;background:rgba(74,222,128,.08)}
+.lv2{color:#fbbf24;border-color:#fbbf2466;background:rgba(251,191,36,.08)}
+.lv3{color:#f87171;border-color:#f8717166;background:rgba(248,113,113,.08)}
+.lv4{color:#c084fc;border-color:#c084fc66;background:rgba(192,132,252,.08)}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:18px}
+.prog-bar{background:rgba(255,255,255,.06);border-radius:2px;height:5px;overflow:hidden;margin-bottom:6px}
+.prog-fill{height:100%;background:linear-gradient(90deg,#7a1c2e,#c9a84c);border-radius:2px;transition:width .5s ease}
+.prog-info{display:flex;justify-content:space-between;font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;color:#7a6a56}
+
+/* CARD */
+.card{background:rgba(245,234,216,.04);border:1px solid rgba(201,168,76,.2);border-radius:5px;padding:28px 24px;animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.q-num{font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:#c9a84c;opacity:.7;text-transform:uppercase;margin-bottom:10px}
+.q-text{font-size:19px;font-style:italic;line-height:1.65;color:#f5ead8;margin-bottom:22px}
+
+/* OPTIONS */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:500px){.opts{grid-template-columns:1fr}}
+.opt{background:rgba(245,234,216,.04);border:1px solid rgba(201,168,76,.18);border-radius:3px;color:#f5ead8;font-family:'EB Garamond',Georgia,serif;font-size:16px;padding:12px 14px;text-align:left;cursor:pointer;transition:background .18s,border-color .18s,transform .1s;line-height:1.4}
+.opt:hover:not(:disabled){background:rgba(201,168,76,.1);border-color:#c9a84c;transform:translateX(3px)}
+.opt:disabled{cursor:default}
+.opt.correct{background:rgba(45,106,79,.28)!important;border-color:#2d6a4f!important;color:#7fd8a3!important}
+.opt.wrong{background:rgba(122,28,46,.28)!important;border-color:#7a1c2e!important;color:#e07070!important}
+.let{font-family:'Cinzel',serif;font-size:10px;color:#c9a84c;opacity:.6;margin-right:7px}
+
+/* FEEDBACK */
+.fb{display:none;margin-top:16px;padding:13px 16px;border-radius:3px;font-size:14px;line-height:1.6;border-left:3px solid;animation:fadeUp .25s ease}
+.fb.show{display:block}
+.fb.ok{border-color:#2d6a4f;background:rgba(45,106,79,.12);color:#a0e8c0}
+.fb.ko{border-color:#7a1c2e;background:rgba(122,28,46,.12);color:#f0a0a0}
+.fb strong{font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;display:block;margin-bottom:3px}
+
+/* NEXT BTN */
+.next-btn{display:none;width:100%;margin-top:16px;background:transparent;border:1px solid #c9a84c;color:#c9a84c;font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:13px;cursor:pointer;border-radius:3px;transition:all .2s}
+.next-btn:hover{background:#c9a84c;color:#0d0a06}
+.next-btn.show{display:block}
+
+/* LIVE SCORE */
+.live{text-align:center;margin-top:14px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:1px;color:#7a6a56}
+.live span{color:#c9a84c}
+
+/* RESULTS */
+#results{display:none;animation:fadeUp .45s ease}
+#results.show{display:block}
+.res-box{background:rgba(245,234,216,.04);border:1px solid rgba(201,168,76,.28);border-radius:6px;padding:36px 24px;text-align:center}
+.res-title{font-family:'Cinzel',serif;font-size:clamp(16px,3vw,22px);color:#e8c97a;margin-bottom:6px}
+.res-sub{font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;color:#7a6a56;margin-bottom:24px}
+.score-ring{width:110px;height:110px;border-radius:50%;border:2px solid #c9a84c;margin:0 auto 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 32px rgba(201,168,76,.18)}
+.score-big{font-family:'Cinzel',serif;font-size:38px;color:#e8c97a;line-height:1}
+.score-of{font-family:'Cinzel',serif;font-size:13px;color:#7a6a56}
+.verdict-badge{display:inline-block;font-family:'Cinzel',serif;font-size:15px;color:#e8c97a;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.35);border-radius:3px;padding:8px 20px;margin-bottom:18px}
+.verdict-txt{font-size:16px;font-style:italic;color:#f5ead8;line-height:1.65;margin-bottom:26px;opacity:.9}
+.restart{background:transparent;border:1px solid #c9a84c;color:#c9a84c;font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:13px 28px;cursor:pointer;border-radius:3px;transition:all .2s}
+.restart:hover{background:#c9a84c;color:#0d0a06}
+
+/* REVIEW */
+.review{margin-top:30px;text-align:left}
+.rev-head{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:#7a6a56;text-transform:uppercase;margin-bottom:12px}
+.rev-item{border-top:1px solid rgba(201,168,76,.1);padding:10px 0;display:flex;gap:10px;align-items:flex-start;font-size:13px}
+.rev-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.rev-q{color:#9a8a76;font-style:italic;line-height:1.4;margin-bottom:2px}
+.rev-a{color:#f5ead8}
+.rev-a span{color:#c9a84c}
+
+/* LEVEL SEPARATOR */
+.lv-sep{text-align:center;margin:0 0 20px;font-family:'Cinzel',serif;font-size:13px;letter-spacing:2px;color:#7a6a56;padding:10px 0;border-top:1px solid rgba(201,168,76,.12);border-bottom:1px solid rgba(201,168,76,.12)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="cross">✝</span>
+  <h1>📖 Quiz — Histoire de la traduction de la Bible</h1>
+  <p>À chaque langue, sa Bible &nbsp;•&nbsp; 40 Questions · 4 Niveaux</p>
+</header>
+
+<div id="quiz-zone">
+  <div class="prog-wrap">
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="prog-info">
+      <span id="prog-left"></span>
+      <span id="prog-right"></span>
+    </div>
+  </div>
+
+  <div class="card" id="card">
+    <div class="q-num" id="q-num"></div>
+    <div id="q-badge"></div>
+    <p class="q-text" id="q-text"></p>
+    <div class="opts" id="q-opts"></div>
+    <div class="fb" id="q-fb"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQ()">Question suivante →</button>
+  </div>
+
+  <div class="live">Score : <span id="live-score">0</span> / <span id="live-cur">0</span></div>
+</div>
+
+<div id="results">
+  <div class="res-box">
+    <div class="res-title">🏆 Résultats du Quiz</div>
+    <div class="res-sub">HISTOIRE DE LA TRADUCTION BIBLIQUE</div>
+    <div class="score-ring">
+      <div class="score-big" id="res-score"></div>
+      <div class="score-of" id="res-of"></div>
+    </div>
+    <div class="verdict-badge" id="res-badge"></div>
+    <p class="verdict-txt" id="res-txt"></p>
+    <button class="restart" onclick="restartQuiz()">↺ &nbsp; Recommencer</button>
+    <div class="review" id="review"></div>
+    <a href="index.html" class="btn-retour-site">← Accueil</a>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+const LETTERS = ['A','B','C','D'];
+
+const ALL_Q = [
+  // ── NIVEAU 1 ──
+  {lv:1, q:"Quelle est la langue principale de l'Ancien Testament ?", opts:["Grec","Latin","Hébreu","Arabe"], ans:2, expl:"L'Ancien Testament a été écrit principalement en hébreu, la langue du peuple d'Israël."},
+  {lv:1, q:"Une partie de l'Ancien Testament est aussi écrite en :", opts:["Latin","Araméen","Grec","Copte"], ans:1, expl:"Certains passages de l'Ancien Testament (Daniel, Esdras…) sont rédigés en araméen, la langue internationale du Proche-Orient à cette époque."},
+  {lv:1, q:"Le Nouveau Testament a été écrit principalement en :", opts:["Hébreu","Grec","Latin","Araméen"], ans:1, expl:"Le Nouveau Testament a été écrit en grec koinè, la langue véhiculaire du monde méditerranéen au 1er siècle."},
+  {lv:1, q:"La Septante est une traduction en :", opts:["Latin","Grec","Hébreu","Anglais"], ans:1, expl:"La Septante (LXX) est la traduction de l'Ancien Testament en grec, réalisée à Alexandrie à partir du IIIe siècle av. J.-C."},
+  {lv:1, q:"La Septante a été réalisée à :", opts:["Rome","Jérusalem","Alexandrie","Antioche"], ans:2, expl:"Alexandrie, grande capitale intellectuelle de l'Égypte hellénistique, a été le lieu de naissance de la Septante."},
+  {lv:1, q:"La Vulgate est une traduction en :", opts:["Grec","Latin","Hébreu","Français"], ans:1, expl:"La Vulgate est la traduction latine de la Bible réalisée par saint Jérôme à la fin du IVe siècle."},
+  {lv:1, q:"La Bible est composée de :", opts:["1 partie","2 parties principales","3 parties","4 parties"], ans:1, expl:"La Bible comprend deux grandes parties : l'Ancien Testament et le Nouveau Testament."},
+  {lv:1, q:"Le mot « Bible » signifie :", opts:["Livre sacré","Ensemble de livres","Parole divine","Écriture"], ans:1, expl:"Le mot « Bible » vient du grec « biblia » qui signifie « les livres » — un recueil de livres inspirés."},
+  {lv:1, q:"La traduction consiste à :", opts:["Copier un texte","Adapter un texte dans une autre langue","Résumer un texte","Modifier un texte"], ans:1, expl:"Traduire, c'est exprimer dans une autre langue le sens et le message d'un texte original."},
+  {lv:1, q:"Pourquoi traduire la Bible ?", opts:["Pour la vendre","Pour la rendre accessible à tous","Pour la simplifier","Pour changer son message"], ans:1, expl:"La traduction est un acte missionnaire : rendre la Parole de Dieu accessible à chaque peuple dans sa propre langue."},
+
+  // ── NIVEAU 2 ──
+  {lv:2, q:"Qui a traduit la Vulgate ?", opts:["Augustin","Jérôme","Luther","Origène"], ans:1, expl:"Saint Jérôme (347–420) a traduit la Bible en latin sur commande du pape Damase Ier. Cette version est devenue la Vulgate."},
+  {lv:2, q:"À quelle époque a été faite la Vulgate ?", opts:["Antiquité tardive","Moyen Âge","Renaissance","Époque moderne"], ans:0, expl:"La Vulgate a été réalisée à la fin du IVe siècle, dans la période dite de l'Antiquité tardive."},
+  {lv:2, q:"Qui a traduit la Bible en allemand ?", opts:["Calvin","Luther","Wycliffe","Knox"], ans:1, expl:"Martin Luther a traduit le Nouveau Testament en 1522 et toute la Bible en 1534, unifiant ainsi la langue allemande écrite."},
+  {lv:2, q:"Quel impact a eu la traduction de Luther ?", opts:["Aucun impact","Elle a rapproché le peuple de la Bible","Elle a interdit la lecture","Elle a détruit les manuscrits"], ans:1, expl:"La traduction de Luther a permis au peuple ordinaire d'accéder directement aux Écritures dans sa propre langue, alimentant la Réforme."},
+  {lv:2, q:"Qui est un pionnier de la traduction anglaise de la Bible ?", opts:["Wycliffe","Moïse","David","Pierre"], ans:0, expl:"John Wycliffe (XIVe siècle) a supervisé la première traduction de la Bible en anglais, ouvrant la voie à la Réforme en Angleterre."},
+  {lv:2, q:"William Tyndale est connu pour :", opts:["La traduction en anglais moderne","La traduction en grec","La traduction en latin","La traduction en arabe"], ans:0, expl:"Tyndale a réalisé la première traduction du NT en anglais depuis le grec original, posant les bases de la King James Version."},
+  {lv:2, q:"Pourquoi Tyndale a-t-il été persécuté ?", opts:["Mauvaise traduction","Traduction non autorisée par l'Église","Manque de formation","Erreurs linguistiques"], ans:1, expl:"Tyndale a traduit sans autorisation de l'Église catholique, ce qui lui a valu d'être condamné et brûlé vif en 1536."},
+  {lv:2, q:"L'imprimerie a permis :", opts:["La disparition de la Bible","La diffusion massive des traductions","L'interdiction de lire la Bible","La destruction des manuscrits"], ans:1, expl:"L'invention de l'imprimerie par Gutenberg (v.1440) a révolutionné la diffusion de la Bible, rendant possible sa reproduction en grande quantité."},
+  {lv:2, q:"Avant l'imprimerie, les textes étaient :", opts:["Numériques","Manuscrits copiés à la main","Enregistrés oralement","Imprimés sur parchemin"], ans:1, expl:"Avant Gutenberg, les Bibles étaient copiées à la main par des moines ou des scribes, un travail long et coûteux qui en limitait l'accès."},
+  {lv:2, q:"La traduction de la Bible a souvent causé :", opts:["Des conflits religieux","Des fêtes populaires","Des jeux olympiques","Rien de notable"], ans:0, expl:"L'histoire montre que donner la Bible au peuple dans sa langue a souvent provoqué des conflits avec les autorités religieuses qui voulaient conserver le monopole de l'interprétation."},
+
+  // ── NIVEAU 3 ──
+  {lv:3, q:"Une traduction littérale signifie :", opts:["Traduire mot à mot","Traduire librement","Résumer le texte","Interpréter librement"], ans:0, expl:"La traduction littérale (ou formelle) cherche à reproduire le plus fidèlement possible la structure et les mots du texte original."},
+  {lv:3, q:"Une traduction dynamique vise à :", opts:["Copier exactement le texte","Reproduire le sens dans la culture cible","Simplifier uniquement","Modifier le message"], ans:1, expl:"La traduction dynamique (ou fonctionnelle) cherche à transmettre le sens et l'impact du texte original dans la culture et la langue cible."},
+  {lv:3, q:"Un défi majeur en traduction est :", opts:["Trop de papier disponible","Différences culturelles entre les langues","Trop de lecteurs intéressés","Trop de langues connues"], ans:1, expl:"Chaque langue porte une vision du monde particulière. Traduire exige de comprendre deux cultures en profondeur pour transmettre fidèlement le message."},
+  {lv:3, q:"Pourquoi certaines langues sont-elles difficiles à traduire ?", opts:["Elles sont trop simples","Elles ne sont pas écrites ou peu développées","Elles sont trop anciennes","Elles sont trop populaires"], ans:1, expl:"Beaucoup de langues africaines et d'ailleurs n'ont pas encore de système d'écriture standardisé. La première étape est alors de développer un alphabet avant même de commencer la traduction."},
+  {lv:3, q:"Le rôle du traducteur biblique est :", opts:["Inventer de nouvelles idées","Transmettre fidèlement le message original","Modifier selon son opinion","Simplifier uniquement pour les enfants"], ans:1, expl:"Le traducteur est avant tout un serviteur du texte : sa mission est de transmettre le message divin avec fidélité et clarté dans la langue cible."},
+  {lv:3, q:"Une mauvaise traduction peut :", opts:["Clarifier le texte","Déformer le message de Dieu","Améliorer le texte","Simplifier efficacement"], ans:1, expl:"Une mauvaise traduction peut induire en erreur des communautés entières sur le sens de la Parole de Dieu — d'où l'importance d'une formation linguistique et spirituelle solide."},
+  {lv:3, q:"Traduire la Bible nécessite :", opts:["Connaissance linguistique uniquement","Compétence linguistique ET spirituelle","Informatique seulement","Marketing et communication"], ans:1, expl:"La traduction biblique est à la fois une science (linguistique, anthropologie, exégèse) et un acte spirituel nécessitant foi, discernement et engagement communautaire."},
+  {lv:3, q:"Le contexte est important pour :", opts:["Décorer le texte","Comprendre le vrai sens d'un mot","Écrire plus rapidement","Traduire plus vite"], ans:1, expl:"Un même mot peut avoir des sens très différents selon son contexte. Le traducteur doit analyser le contexte littéraire, historique et culturel pour saisir le sens exact."},
+  {lv:3, q:"Une langue maternelle est :", opts:["La langue officielle du pays","La langue apprise en premier dans la famille","Une langue étrangère","Une langue technique"], ans:1, expl:"La langue maternelle est la première langue apprise dans l'enfance, généralement dans la famille. C'est la langue du cœur et de l'identité profonde."},
+  {lv:3, q:"Pourquoi traduire dans la langue maternelle ?", opts:["Facilité économique uniquement","Meilleure compréhension et transformation du message","Moins de travail pour les traducteurs","Tradition culturelle"], ans:1, expl:"La langue maternelle est la langue du cœur. Un message dans la langue maternelle touche plus profondément, transforme davantage et s'enracine de façon plus durable."},
+
+  // ── NIVEAU 4 ──
+  {lv:4, q:"Le slogan « À chaque langue, sa Bible » signifie :", opts:["Multiplier le nombre de livres","Donner à chaque peuple accès à la Bible dans sa propre langue","Simplifier la Bible pour tous","Uniformiser toutes les traductions"], ans:1, expl:"Ce slogan est un appel missionnaire : chaque communauté linguistique a le droit et le besoin d'avoir la Parole de Dieu dans sa propre langue maternelle."},
+  {lv:4, q:"Une traduction locale de la Bible permet :", opts:["Du divertissement culturel","Une transformation spirituelle profonde","Des jeux communautaires","Du commerce local"], ans:1, expl:"Quand la Bible parle la langue du cœur d'un peuple, elle peut le transformer en profondeur : spirituellement, socialement, culturellement."},
+  {lv:4, q:"L'impact social d'une traduction biblique peut être :", opts:["Nul dans la société","Éducation, développement et cohésion sociale","Division uniquement","Confusion dans la société"], ans:1, expl:"L'histoire montre que la traduction de la Bible a souvent favorisé l'alphabétisation, le développement des langues locales, l'éducation et la transformation des communautés."},
+  {lv:4, q:"Traduire la Bible contribue à :", opts:["Perdre la culture locale","Valoriser et préserver les langues locales","Supprimer les langues minoritaires","Uniformiser toutes les cultures"], ans:1, expl:"Développer un système d'écriture et traduire la Bible dans une langue contribue à sa préservation, sa documentation et sa valorisation culturelle."},
+  {lv:4, q:"Beaucoup de langues dans le monde :", opts:["Ont toutes une Bible complète","N'ont aucune traduction biblique","Ont plusieurs versions de la Bible","Sont toutes des langues mortes"], ans:1, expl:"Selon les données de Wycliffe et SIL, plus de 1 500 langues n'ont encore aucune partie de la Bible traduite. Des centaines de millions de personnes attendent encore."},
+  {lv:4, q:"Une organisation majeure de traduction biblique est :", opts:["L'ONU","Wycliffe Bible Translators","La Banque mondiale","L'UNESCO"], ans:1, expl:"Wycliffe Bible Translators, fondée en 1942 par William Cameron Townsend, est l'une des principales organisations mondiales de traduction biblique."},
+  {lv:4, q:"Les traducteurs bibliques travaillent souvent :", opts:["Seuls dans leur bureau","En équipes linguistiques et avec les communautés locales","Avec des robots uniquement","Avec des machines à écrire"], ans:1, expl:"La traduction biblique moderne est un travail d'équipe associant linguistes, exégètes, locuteurs natifs et membres de la communauté ecclésiastique locale."},
+  {lv:4, q:"La traduction biblique moderne utilise :", opts:["Papier et stylo seulement","Technologie numérique et logiciels linguistiques","Stylos à plume uniquement","Machines à écrire"], ans:1, expl:"Les traducteurs utilisent aujourd'hui des logiciels spécialisés (Paratext, Logos…), des bases de données linguistiques et des outils numériques pour accélérer et améliorer le travail."},
+  {lv:4, q:"Le plus grand défi de la traduction biblique aujourd'hui est :", opts:["Trop de traductions disponibles","Atteindre les langues sans aucune traduction","Trop de lecteurs intéressés","Manque total de Bibles imprimées"], ans:1, expl:"Malgré les progrès accomplis, des milliers de groupes linguistiques — souvent minoritaires et isolés — attendent encore leur première traduction biblique."},
+  {lv:4, q:"Le but final de la traduction biblique est :", opts:["Publier un beau livre","Transformer des vies et rapprocher les peuples de Dieu","Enseigner uniquement la grammaire","Gagner de l'argent"], ans:1, expl:"La traduction de la Bible n'est pas une fin en soi — c'est un instrument de salut, de transformation et de réconciliation entre Dieu et chaque peuple de la terre (Apocalypse 7:9)."},
+];
+
+const LEVELS = {
+  1:{label:"🟢 NIVEAU 1 – Fondamentaux",cls:"lv1"},
+  2:{label:"🟡 NIVEAU 2 – Histoire",cls:"lv2"},
+  3:{label:"🔴 NIVEAU 3 – Traduction & Méthodes",cls:"lv3"},
+  4:{label:"🟣 NIVEAU 4 – Vision & Impact",cls:"lv4"},
+};
+
+let cur=0, score=0, history=[];
+
+function renderQ(){
+  const q=ALL_Q[cur];
+  const total=ALL_Q.length;
+  document.getElementById('prog-fill').style.width=((cur/total)*100)+'%';
+  document.getElementById('prog-left').textContent='Question '+(cur+1)+' / '+total;
+  document.getElementById('prog-right').textContent='Score : '+score;
+  document.getElementById('q-num').textContent='Question '+(cur+1);
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('q-fb').className='fb';
+  document.getElementById('q-fb').innerHTML='';
+  document.getElementById('next-btn').className='next-btn';
+  document.getElementById('live-score').textContent=score;
+  document.getElementById('live-cur').textContent=cur;
+
+  // level badge
+  const lv=LEVELS[q.lv];
+  document.getElementById('q-badge').innerHTML=`<span class="level-badge ${lv.cls}">${lv.label}</span>`;
+
+  // options
+  const g=document.getElementById('q-opts');
+  g.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML=`<span class="let">${LETTERS[i]}.</span>${o}`;
+    b.onclick=()=>selectAns(i);
+    g.appendChild(b);
+  });
+
+  // re-animate
+  const c=document.getElementById('card');
+  c.style.animation='none'; c.offsetHeight; c.style.animation='';
+}
+
+function selectAns(i){
+  const q=ALL_Q[cur];
+  document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  const btns=document.querySelectorAll('.opt');
+  btns[i].classList.add(i===q.ans?'correct':'wrong');
+  btns[q.ans].classList.add('correct');
+  const ok=i===q.ans;
+  if(ok) score++;
+  history.push({ok,correctAns:q.opts[q.ans],q:q.q});
+  const fb=document.getElementById('q-fb');
+  fb.className='fb show '+(ok?'ok':'ko');
+  fb.innerHTML=`<strong>${ok?'✔ Correct !':'✘ Incorrect'}</strong>${q.expl}`;
+  document.getElementById('next-btn').className='next-btn show';
+  document.getElementById('next-btn').textContent=cur+1>=ALL_Q.length?'Voir mes résultats 🏆':'Question suivante →';
+}
+
+function nextQ(){
+  cur++;
+  if(cur>=ALL_Q.length){showResults();return;}
+  renderQ();
+}
+
+function showResults(){
+  document.getElementById('quiz-zone').style.display='none';
+  const rs=document.getElementById('results');
+  rs.classList.add('show');
+  const total=ALL_Q.length;
+  document.getElementById('res-score').textContent=score;
+  document.getElementById('res-of').textContent='/ '+total;
+
+  let badge,txt;
+  if(score===40){badge='📖🔥 Ambassadeur des Nations';txt='Score parfait ! Vous êtes un véritable ambassadeur de la Parole de Dieu dans toutes les langues. Que votre engagement inspire de nombreuses Églises !';}
+  else if(score>=31){badge='🌍 Expert';txt='Remarquable ! Vous avez une connaissance approfondie de l\'histoire et de la vision de la traduction biblique. Continuez à partager cette passion !';}
+  else if(score>=21){badge='🔥 Avancé';txt='Très bien ! Vous avez de solides bases sur l\'histoire de la traduction de la Bible. Quelques pages à approfondir encore.';}
+  else if(score>=11){badge='👍 Intermédiaire';txt='Bien ! Vous avez des connaissances de base mais il y a encore beaucoup à découvrir dans cette aventure fascinante.';}
+  else{badge='📘 Débutant';txt='C\'est un point de départ ! L\'histoire de la traduction de la Bible est l\'une des plus belles aventures humaines — plongez-y !';}
+
+  document.getElementById('res-badge').textContent=badge;
+  document.getElementById('res-txt').textContent=txt;
+
+  const rev=document.getElementById('review');
+  rev.innerHTML='<div class="rev-head">Récapitulatif de vos réponses</div>';
+  history.forEach((a,i)=>{
+    rev.innerHTML+=`<div class="rev-item"><span class="rev-icon">${a.ok?'✅':'❌'}</span><div><div class="rev-q">${ALL_Q[i].q}</div><div class="rev-a">Réponse correcte : <span>${a.correctAns}</span></div></div></div>`;
+  });
+}
+
+function restartQuiz(){
+  cur=0; score=0; history=[];
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('quiz-zone').style.display='block';
+  renderQ();
+}
+
+renderQ();
+</script>
+</body>
+</html>
+                                          <a href="index.html" class="btn-retour-site">← Accueil</a>
